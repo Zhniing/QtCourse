@@ -13,9 +13,11 @@ public:
 
 private slots:
     void slotAcceptLogin();
+	void slotSignUp();
 
 private:
 	void createUI();
+	bool checkText();
 
 private:
 	QLineEdit* nameText_;

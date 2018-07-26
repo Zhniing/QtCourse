@@ -3,7 +3,12 @@
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QMessageBox>
+#include <boost/asio.hpp>
 
+#include <vector>
+
+using namespace boost::asio;
 
 LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
 {
@@ -11,7 +16,6 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
 
     //setModal(true);
 }
-
 
 void LoginDialog::createUI()
 {
@@ -24,10 +28,13 @@ void LoginDialog::createUI()
 	passwordLabel->setText(tr(u8"密  码: "));
 
 	nameText_ = new QLineEdit;
-    //userNameLabel_->setBuddy(userNameText_);
+	nameText_->setPlaceholderText(tr(u8"请输入用户名"));
+	nameText_->setText("zhn");
 
 	passwordText_ = new QLineEdit;
-    //passwordLabel_->setBuddy(passwordText_);
+	passwordText_->setEchoMode(QLineEdit::Password);
+	passwordText_->setPlaceholderText(tr(u8"请输入密码"));
+	passwordText_->setText("1123");
 
 	QHBoxLayout* name = new QHBoxLayout();
 	name->addWidget(nameLabel);
@@ -38,33 +45,102 @@ void LoginDialog::createUI()
 	password->addWidget(passwordText_);
 
     // initialize buttons
-    auto buttons = new QDialogButtonBox(this);
-    buttons->addButton(QDialogButtonBox::Ok);
-    buttons->addButton(QDialogButtonBox::Cancel);
-    buttons->button(QDialogButtonBox::Ok)->setText(tr(u8"登录"));
-    buttons->button(QDialogButtonBox::Cancel)->setText(tr(u8"放弃"));
+    //auto buttons = new QDialogButtonBox(this);
+    //buttons->addButton(QDialogButtonBox::Ok);
+    //buttons->addButton(QDialogButtonBox::Cancel);
+    //buttons->button(QDialogButtonBox::Ok)->setText(tr(u8"登录"));
+    //buttons->button(QDialogButtonBox::Cancel)->setText(tr(u8"注册"));
+	auto* btnLogin = new QPushButton(tr(u8"登陆"));
+	auto* btnSignup = new QPushButton(tr(u8"注册"));
+	auto* btnExit = new QPushButton(tr(u8"退出"));
+	QHBoxLayout* buttons = new QHBoxLayout();
+	buttons->addWidget(btnLogin);
+	buttons->addWidget(btnSignup);
+	buttons->addWidget(btnExit);
 
     // connects slots
-    connect(buttons->button(QDialogButtonBox::Cancel),
-        SIGNAL(clicked()),
-        this,
-        SLOT(close())
-    );
-
-    connect(buttons->button(QDialogButtonBox::Ok),
-        SIGNAL(clicked()),
-        this,
-        SLOT(slotAcceptLogin()));
+	connect(btnExit, SIGNAL(clicked()), this, SLOT(reject())); // 退出
+	connect(btnSignup, SIGNAL(clicked()), this, SLOT(slotSignUp())); // 注册
+	connect(btnLogin, SIGNAL(clicked()), this, SLOT(slotAcceptLogin())); // 登陆
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	layout->addItem(name);
 	layout->addItem(password);
-    layout->addWidget(buttons);
+    layout->addItem(buttons);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
 	setLayout(layout);
 }
 
 void LoginDialog::slotAcceptLogin() {
-    close();
+	if (!checkText()) {
+		QMessageBox::warning(this, tr(u8"Waring"), tr(u8"用户名和密码不能为空！"), QMessageBox::Yes);
+		return;
+	}
+
+	QString name = nameText_->text();
+	QString passwd = passwordText_->text();
+	// 登陆验证
+	io_service ios;
+	ip::tcp::socket sock(ios);
+	ip::tcp::endpoint ep(ip::address::from_string("192.168.43.6"), 11230);
+	sock.connect(ep);
+
+	std::string loginInfo = "l";
+	loginInfo += "|";
+	loginInfo += nameText_->text().toStdString();
+	loginInfo += "|";
+	loginInfo += passwordText_->text().toStdString();
+	sock.write_some(buffer(loginInfo)); // 发送登录验证请求
+	std::vector<char> buf(100);
+	sock.read_some(buffer(buf)); // 接收验证答复
+
+	std::string ack = &buf[0]; 
+	if (ack == "accept") {
+		accept();
+	}
+	else { // 验证失败
+		QMessageBox::warning(this, tr(u8"Waring"), tr(u8"用户名或密码错误"), QMessageBox::Yes);
+		nameText_->clear();
+		passwordText_->clear();
+		nameText_->setFocus();
+	}
+}
+
+void LoginDialog::slotSignUp() {
+	if (!checkText()) {
+		QMessageBox::warning(this, tr(u8"Waring"), tr(u8"用户名和密码不能为空！"), QMessageBox::Yes);
+		return;
+	}
+
+	io_service ios;
+	ip::tcp::socket sock(ios);
+	ip::tcp::endpoint ep(ip::address::from_string("192.168.43.6"), 11230);
+	sock.connect(ep);
+
+	std::string signupInfo = "s";
+	signupInfo += "|";
+	signupInfo += nameText_->text().toStdString();
+	signupInfo += "|";
+	signupInfo += passwordText_->text().toStdString();
+	sock.write_some(buffer(signupInfo)); // 发送注册验证请求
+	std::vector<char> buf(100);
+	sock.read_some(buffer(buf)); // 接收注册验证答复
+
+	std::string ack = &buf[0];
+	if (ack == "accept") {
+		QMessageBox::warning(this, tr(u8"Waring"), tr(u8"注册成功"), QMessageBox::Yes);
+	}
+	else { // 验证失败
+		QMessageBox::warning(this, tr(u8"Waring"), tr(u8"该用户名已被注册"), QMessageBox::Yes);
+	}
+}
+
+bool LoginDialog::checkText() {
+	std::string username = nameText_->text().toStdString();
+	std::string password = passwordText_->text().toStdString();
+	if (username != "" && password != "") {
+		return true;
+	}
+	return false;
 }

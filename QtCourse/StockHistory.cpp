@@ -25,7 +25,7 @@ void StockHistory::createChart(){
     chart->setTitle(u8"历史行情");
 
     setChart(chart);
-    setRenderHint(QPainter::Antialiasing);
+    setRenderHint(QPainter::Antialiasing); // 抗锯齿
 }
 
 StockHistory::~StockHistory()
