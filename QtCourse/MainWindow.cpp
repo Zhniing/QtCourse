@@ -71,10 +71,6 @@ void MainWindow::createUI() {
 }
 
 void MainWindow::slotViewHistory(const QString& code) {
-    QMessageBox msgBox;
-    msgBox.setText(code);
-    msgBox.exec();
-
     contextLayout_->setCurrentIndex(1);
 }
 
@@ -90,7 +86,17 @@ void MainWindow::handleClick()
 		QMessageBox::warning(this, tr(u8"Waring"), tr(u8"请输入完整的IP地址和端口"), QMessageBox::Yes);
 		return;
 	}
-	stockBrowser_->fetchData(add, port);
+	switch (contextLayout_->currentIndex())
+	{
+	case 0:
+		stockBrowser_->fetchData(add, port);
+		break;
+	case 1:
+		stockHistory_->fetchData(add, port);
+		break;
+	default:
+		break;
+	}
 }
 
 void MainWindow::animateClick()

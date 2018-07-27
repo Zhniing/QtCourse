@@ -12,11 +12,9 @@
 using namespace boost::asio;
 using namespace std;
 
-
 StockBrowser::StockBrowser(QWidget* parent) : QTableWidget(parent)
 {
     createUI();
-	//fetchData();
 }
 
 void StockBrowser::fetchData(string serverAdd, string serverPort) {
@@ -25,9 +23,9 @@ void StockBrowser::fetchData(string serverAdd, string serverPort) {
 	ip::tcp::socket sock(ios);
 	ip::tcp::endpoint ep(ip::address::from_string(serverAdd), 11230);
 	sock.connect(ep);
-	sock.write_some(buffer("f|"));
-
-	//auto stockList = new QStringList();
+	int curCount = rowCount();
+	string cmd = "b|" + to_string(curCount);
+	sock.write_some(buffer(cmd));
 
 	for (int i = 0; i < 100; i++) {
 		ip::tcp::iostream tcp_stream(serverAdd, serverPort);
@@ -40,13 +38,16 @@ void StockBrowser::fetchData(string serverAdd, string serverPort) {
 		while (rzrk.length() < 6) {
 			rzrk = "0" + rzrk;
 		}
-		setItem(i, 0, new QTableWidgetItem("RZRK-" + rzrk));
-		setItem(i, 1, new QTableWidgetItem(QString::fromStdString(tuple[2])));
-		setItem(i, 2, new QTableWidgetItem(QString::fromStdString(tuple[7])));
-		setItem(i, 3, new QTableWidgetItem(QString::fromStdString(tuple[17])));
-		setItem(i, 4, new QTableWidgetItem(QString::fromStdString(tuple[20])));
-		setItem(i, 5, new QTableWidgetItem(QString::fromStdString(tuple[21])));
-		setItem(i, 6, new QTableWidgetItem(QString::fromStdString(tuple[22])));
+
+		int row = rowCount();
+		insertRow(row);
+		setItem(row, 0, new QTableWidgetItem("RZRK-" + rzrk));
+		setItem(row, 1, new QTableWidgetItem(QString::fromStdString(tuple[2])));
+		setItem(row, 2, new QTableWidgetItem(QString::fromStdString(tuple[7])));
+		setItem(row, 3, new QTableWidgetItem(QString::fromStdString(tuple[17])));
+		setItem(row, 4, new QTableWidgetItem(QString::fromStdString(tuple[20])));
+		setItem(row, 5, new QTableWidgetItem(QString::fromStdString(tuple[21])));
+		setItem(row, 6, new QTableWidgetItem(QString::fromStdString(tuple[22])));
 	}
 }
 
@@ -74,8 +75,7 @@ void StockBrowser::createUI() {
 	setShowGrid(true); // 显示格子
 	setSelectionBehavior(QAbstractItemView::SelectRows); // 同时选择一行
 
-	setRowCount(100);
-	setItem(0, 0, new QTableWidgetItem("001"));
+	//setItem(0, 0, new QTableWidgetItem("001"));
 
 	//insertRow(1);
 }

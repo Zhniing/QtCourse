@@ -5,6 +5,8 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QMessageBox>
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp> 
 
 #include <vector>
 
@@ -133,7 +135,16 @@ void LoginDialog::slotSignUp() {
 	}
 	else { // 验证失败
 		QMessageBox::warning(this, tr(u8"Waring"), tr(u8"该用户名已被注册"), QMessageBox::Yes);
+		sock.close();
 	}
+
+	//connFlag = false;
+	//sock.async_connect(ep, boost::bind(&LoginDialog::conn, this, &sock, boost::asio::placeholders::error));
+
+	//deadline_timer t(ios, boost::posix_time::seconds(5));
+	//t.async_wait(boost::bind(&LoginDialog::timeOut, this, &sock));
+
+	//ios.run();
 }
 
 bool LoginDialog::checkText() {
@@ -143,4 +154,38 @@ bool LoginDialog::checkText() {
 		return true;
 	}
 	return false;
+}
+
+void LoginDialog::conn(ip::tcp::socket * sock, const boost::system::error_code& ec) {
+	if (ec) {
+		//QMessageBox::warning(this, tr(u8"Waring"), tr(u8"连接错误"), QMessageBox::Yes);
+	}
+	else {
+		connFlag = true;
+		//QMessageBox::warning(this, tr(u8"Waring"), tr(u8"连接成功"), QMessageBox::Yes);
+		std::string signupInfo = "s";
+		signupInfo += "|";
+		signupInfo += nameText_->text().toStdString();
+		signupInfo += "|";
+		signupInfo += passwordText_->text().toStdString();
+		sock->write_some(buffer(signupInfo)); // 发送注册验证请求
+		std::vector<char> buf(100);
+		sock->read_some(buffer(buf)); // 接收注册验证答复
+
+		std::string ack = &buf[0];
+		if (ack == "accept") {
+			QMessageBox::warning(this, tr(u8"Waring"), tr(u8"注册成功"), QMessageBox::Yes);
+		}
+		else { // 验证失败
+			QMessageBox::warning(this, tr(u8"Waring"), tr(u8"该用户名已被注册"), QMessageBox::Yes);
+			sock->close();
+		}
+	}
+}
+
+void LoginDialog::timeOut(ip::tcp::socket * sock) {
+	if (!connFlag) {
+		QMessageBox::warning(this, tr(u8"Waring"), tr(u8"关闭socket"), QMessageBox::Yes);
+		sock->close();
+	}
 }
