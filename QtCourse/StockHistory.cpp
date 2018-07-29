@@ -6,6 +6,8 @@
 #include <QtWidgets/QGridLayout>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QBarSeries>
+#include <QtCore/QDateTime>
+#include <QtCharts/QDateTimeAxis>
 
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
@@ -39,15 +41,26 @@ void StockHistory::fetchData(string add, string port) {
 
 		vector<string> tuple;
 		boost::algorithm::split(tuple, buf, boost::algorithm::is_any_of(","));
-		
-		double temp = stod(tuple[0]);
-		qreal y = temp;
-		QPointF p(i, y);
+
+		string datetime = tuple[9];
+		vector<string> datetimeVec;
+		boost::algorithm::split(datetimeVec, datetime, boost::algorithm::is_any_of(" "));
+
+		vector<string> date;
+		vector<string> time;
+		boost::algorithm::split(date, datetimeVec[1], boost::algorithm::is_any_of("-"));
+		boost::algorithm::split(time, datetimeVec[2], boost::algorithm::is_any_of(":"));
+
+		QDateTime momentInTime(QDate(stoi(date[0]), stoi(date[1]), stoi(date[2])), QTime(stoi(time[0]), stoi(time[1]), stoi(time[2])));
+
+		double value = stod(tuple[0]);
+		qreal y = value;
+		QPointF p(momentInTime.toMSecsSinceEpoch(), y);
 		priceSeries->append(p);
 
-		temp = stod(tuple[2]) / stod(tuple[1]) / 100;
-		qreal y2 = temp;
-		QPointF p2(i, y2);
+		value = stod(tuple[2]) / stod(tuple[1]) / 100;
+		qreal y2 = value;
+		QPointF p2(momentInTime.toMSecsSinceEpoch(), y2);
 		avgPrice->append(p2);
 
 		if (i > 0) {
@@ -65,10 +78,20 @@ void StockHistory::fetchData(string add, string port) {
 	chart->createDefaultAxes();
 	chart->setTitle(u8"·ÖÊ±Í¼");
 	chart->axisY()->setRange(8.7, 8.76);
+	chart->axisX()->hide();
 	chart->setMinimumHeight(300);
+
 	chart->setTheme(QChart::ChartThemeDark);
 	priceSeries->setColor(Qt::white);
 	avgPrice->setColor(Qt::yellow);
+
+	QDateTimeAxis *axisX = new QDateTimeAxis;
+	axisX->setTickCount(10);
+	axisX->setFormat("h:m:s");
+	//axisX->setTitleText("Date");
+	chart->addAxis(axisX, Qt::AlignBottom);
+	priceSeries->attachAxis(axisX);
+	avgPrice->attachAxis(axisX);
 
 	//setChart(chart);
 	//setRenderHint(QPainter::Antialiasing); // ¿¹¾â³Ý
@@ -83,6 +106,9 @@ void StockHistory::fetchData(string add, string port) {
 	dealChart->axisX()->hide();
 	dealChart->setMinimumHeight(300);
 	dealChart->setTheme(QChart::ChartThemeDark);
+	dealChart->setAnimationOptions(QChart::SeriesAnimations);
+	//dealChart->addAxis(axisX, Qt::AlignBottom);
+	//dealSeries->attachAxis(axisX);
 
 	auto* chartLayout = new QGridLayout();
 	auto* c = new QChartView(chart);
