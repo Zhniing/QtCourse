@@ -52,7 +52,7 @@ void LoginDialog::createUI()
     //buttons->addButton(QDialogButtonBox::Cancel);
     //buttons->button(QDialogButtonBox::Ok)->setText(tr(u8"µÇÂ¼"));
     //buttons->button(QDialogButtonBox::Cancel)->setText(tr(u8"×¢²á"));
-	auto* btnLogin = new QPushButton(tr(u8"µÇÂ½"));
+	auto* btnLogin = new QPushButton(tr(u8"µÇÂ¼"));
 	auto* btnSignup = new QPushButton(tr(u8"×¢²á"));
 	auto* btnExit = new QPushButton(tr(u8"ÍË³ö"));
 	QHBoxLayout* buttons = new QHBoxLayout();
@@ -85,7 +85,7 @@ void LoginDialog::slotAcceptLogin() {
 	// µÇÂ½ÑéÖ¤
 	io_service ios;
 	ip::tcp::socket sock(ios);
-	ip::tcp::endpoint ep(ip::address::from_string("192.168.43.6"), 11230);
+	ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 11230);
 	sock.connect(ep);
 
 	std::string loginInfo = "l";
@@ -117,7 +117,7 @@ void LoginDialog::slotSignUp() {
 
 	io_service ios;
 	ip::tcp::socket sock(ios);
-	ip::tcp::endpoint ep(ip::address::from_string("192.168.43.6"), 11230);
+	ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 11230);
 	sock.connect(ep);
 
 	std::string signupInfo = "s";

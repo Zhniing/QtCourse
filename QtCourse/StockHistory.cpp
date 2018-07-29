@@ -15,9 +15,9 @@
 using namespace boost::asio;
 using namespace std;
 
-StockHistory::StockHistory(QWidget* parent) : QChartView(parent)
+StockHistory::StockHistory(QWidget* parent) : QWidget(parent)
 {
-    createChart();
+    //createChart();
 }
 
 void StockHistory::fetchData(string add, string port) {
@@ -32,7 +32,7 @@ void StockHistory::fetchData(string add, string port) {
 	sock.write_some(buffer("h|"));
 
 	int preDeal = 0; // 记录前一次的总成交量
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 200; i++) {
 		ip::tcp::iostream tcp_stream(add, port);
 		string buf;
 		getline(tcp_stream, buf);
@@ -65,6 +65,10 @@ void StockHistory::fetchData(string add, string port) {
 	chart->createDefaultAxes();
 	chart->setTitle(u8"分时图");
 	chart->axisY()->setRange(8.7, 8.76);
+	chart->setMinimumHeight(300);
+	chart->setTheme(QChart::ChartThemeDark);
+	priceSeries->setColor(Qt::white);
+	avgPrice->setColor(Qt::yellow);
 
 	//setChart(chart);
 	//setRenderHint(QPainter::Antialiasing); // 抗锯齿
@@ -74,12 +78,17 @@ void StockHistory::fetchData(string add, string port) {
 	auto* dealChart = new QChart();
 	dealChart->addSeries(dealSeries);
 	dealChart->setTitle(tr(u8"成交量"));
+	dealChart->createDefaultAxes();
+	dealChart->legend()->hide();
+	dealChart->axisX()->hide();
+	dealChart->setMinimumHeight(300);
+	dealChart->setTheme(QChart::ChartThemeDark);
 
 	auto* chartLayout = new QGridLayout();
 	auto* c = new QChartView(chart);
 	c->setRenderHint(QPainter::Antialiasing);
 	chartLayout->addWidget(c, 0, 0);
-	//chartLayout->addWidget(new QChartView(dealChart), 0, 0);
+	chartLayout->addWidget(new QChartView(dealChart), 1, 0);
 
 	setLayout(chartLayout);
 }
@@ -101,7 +110,7 @@ void StockHistory::createChart(){
     chart->setTitle(u8"历史行情");
 
     //setChart(chart);
-    setRenderHint(QPainter::Antialiasing); // 抗锯齿
+	//setRenderHint(QPainter::Antialiasing); // 抗锯齿
 }
 
 StockHistory::~StockHistory()

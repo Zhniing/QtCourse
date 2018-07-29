@@ -14,11 +14,11 @@ MainWindow::MainWindow() {
 void MainWindow::createUI() {
 
 	// 主窗体大小
-    resize(800, 600);
+    resize(800, 671);
 
 	// 网络连接 小部件Widget
     serverAddress_ = new QLineEdit;
-	serverAddress_->setText("192.168.43.6");
+	serverAddress_->setText("127.0.0.1");
     serverAddress_->setFixedWidth(120);
     serverPort_ = new QLineEdit;
 	serverPort_->setText("11231");
@@ -61,6 +61,11 @@ void MainWindow::createUI() {
     
 	// 使这个Widget居中
 	this->setCentralWidget(centralWidget);
+
+	QPalette pal = window()->palette();
+	pal.setColor(QPalette::Window, QRgb(0x121218));
+	pal.setColor(QPalette::WindowText, QRgb(0xd6d6d6));
+	window()->setPalette(pal);
 	
     connect(stockBrowser_, &StockBrowser::viewHistory, this, &MainWindow::slotViewHistory);
     connect(stockHistory_, &StockHistory::viewFinish, this, &MainWindow::slotViewHistoryFinish);

@@ -82,6 +82,11 @@
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
+    <CustomBuild>
+      <Command>"$(QT5DIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QT5DIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QT5DIR)\include\QtCore" "-I$(QT5DIR)\include\QtGui" "-I$(QT5DIR)\include\QtWidgets" "-I.\..\SDK\boost" "-I.\..\inc"</Command>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <AdditionalInputs>$(QT5DIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

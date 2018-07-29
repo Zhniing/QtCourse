@@ -1,6 +1,10 @@
 #pragma once
 
 #include <QtWidgets/QTableWidget>
+//#include <QtGui>
+#include <QtWidgets/qstyleditemdelegate.h>
+#include <QtWidgets/qitemdelegate.h>
+//QStyledItemDelegate
 
 class StockBrowser : public QTableWidget
 {
@@ -22,3 +26,9 @@ private:
     void createUI();
 };
 
+
+class ItemDelegate : public QItemDelegate
+{
+protected:
+	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+};
