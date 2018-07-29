@@ -123,6 +123,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Candlestick.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_Candlestick.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_LoginDialog.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_MainWIndow.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_StockBrowser.cpp" />
@@ -162,6 +164,9 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QT5DIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Candlestick.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

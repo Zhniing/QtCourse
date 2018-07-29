@@ -8,6 +8,7 @@
 #include <QtCharts/QBarSeries>
 #include <QtCore/QDateTime>
 #include <QtCharts/QDateTimeAxis>
+#include <QtCharts/QValueAxis>
 
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
@@ -51,7 +52,8 @@ void StockHistory::fetchData(string add, string port) {
 		boost::algorithm::split(date, datetimeVec[1], boost::algorithm::is_any_of("-"));
 		boost::algorithm::split(time, datetimeVec[2], boost::algorithm::is_any_of(":"));
 
-		QDateTime momentInTime(QDate(stoi(date[0]), stoi(date[1]), stoi(date[2])), QTime(stoi(time[0]), stoi(time[1]), stoi(time[2])));
+		QDateTime momentInTime(QDate(stoi(date[0]), stoi(date[1]), stoi(date[2])),
+							QTime(stoi(time[0]), stoi(time[1]), stoi(time[2])));
 
 		double value = stod(tuple[0]);
 		qreal y = value;
@@ -77,7 +79,12 @@ void StockHistory::fetchData(string add, string port) {
 	chart->addSeries(avgPrice);
 	chart->createDefaultAxes();
 	chart->setTitle(u8"·ÖÊ±Í¼");
-	chart->axisY()->setRange(8.7, 8.76);
+	//chart->axisY()->setRange(8.7, 8.76);
+
+	QValueAxis *axisY = qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).at(0));
+	axisY->setMax(axisY->max() * 1.001);
+	axisY->setMin(axisY->min() * 0.999);
+
 	chart->axisX()->hide();
 	chart->setMinimumHeight(300);
 
@@ -145,6 +152,9 @@ StockHistory::~StockHistory()
 
 void StockHistory::keyPressEvent(QKeyEvent *event) {
     if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)) {
-        emit viewFinish();
+        emit viewCandle();
     }
+	else if (event->key() == Qt::Key_Escape) {
+		emit viewFinish();
+	}
 }

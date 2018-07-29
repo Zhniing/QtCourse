@@ -16,6 +16,7 @@ public:
 
 signals:
     void viewFinish();
+	void viewCandle();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

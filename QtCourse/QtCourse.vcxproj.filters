@@ -48,6 +48,12 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_StockHistory.cpp">
       <Filter>moc\debug</Filter>
     </ClCompile>
+    <ClCompile Include="Candlestick.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Candlestick.cpp">
+      <Filter>moc\debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="LoginDialog.h">
@@ -60,6 +66,9 @@
       <Filter>头文件</Filter>
     </CustomBuild>
     <CustomBuild Include="StockHistory.h">
+      <Filter>头文件</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Candlestick.h">
       <Filter>头文件</Filter>
     </CustomBuild>
   </ItemGroup>

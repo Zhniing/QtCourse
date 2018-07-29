@@ -4,8 +4,10 @@
 #include <QtWidgets/QStackedLayout>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/QDialogButtonBox>
+
 #include "StockBrowser.h"
 #include "StockHistory.h"
+#include "Candlestick.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -17,7 +19,9 @@ private:
 
 private slots:
 	void slotViewHistory(const QString& code);
-	void slotViewHistoryFinish();
+	void slotToHistory();
+	void slotViewFinish();
+	void slotViewCandle();
 	void handleClick();
 	void animateClick();
 
@@ -27,6 +31,7 @@ private:
 	QPushButton* fetchData_;
     QWidget* context_;
     QStackedLayout* contextLayout_; // 栈布局
-    StockBrowser* stockBrowser_;
-    StockHistory* stockHistory_;
+    StockBrowser* stockBrowser_; // 股票浏览
+    StockHistory* stockHistory_; // 历史行情
+	Candlestick* stockCandle_; // K线
 };

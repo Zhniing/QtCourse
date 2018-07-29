@@ -39,11 +39,14 @@ void MainWindow::createUI() {
 	// 主要内容部件
     stockBrowser_ = new StockBrowser(); // 股票浏览 小部件Widget
     stockHistory_ = new StockHistory(); // 股票历史行情 小部件Widget
+	stockCandle_ = new Candlestick(); // K线 小部件Widget
 
 	// 主要内容 栈布局Layout
     contextLayout_ = new QStackedLayout;
     contextLayout_->addWidget(stockBrowser_); // index: 0
     contextLayout_->addWidget(stockHistory_); // index: 1
+	contextLayout_->addWidget(stockCandle_); // index: 2
+	//contextLayout_->setCurrentIndex(2);
 
 	// 把主要内容包装成一个小部件 Widget
     context_ = new QWidget;
@@ -68,8 +71,13 @@ void MainWindow::createUI() {
 	window()->setPalette(pal);
 	
     connect(stockBrowser_, &StockBrowser::viewHistory, this, &MainWindow::slotViewHistory);
-    connect(stockHistory_, &StockHistory::viewFinish, this, &MainWindow::slotViewHistoryFinish);
-	//connect(fetchData_, SIGNAL(clicked()), this, SLOT(handleFetchData()));
+
+    connect(stockHistory_, &StockHistory::viewFinish, this, &MainWindow::slotViewFinish);
+	connect(stockHistory_, &StockHistory::viewCandle, this, &MainWindow::slotViewCandle);
+
+	connect(stockCandle_, &Candlestick::viewFinish, this, &MainWindow::slotViewFinish);
+	connect(stockCandle_, &Candlestick::viewHistory, this, &MainWindow::slotToHistory);
+
 	connect(fetchData_, &QPushButton::clicked, this, &MainWindow::handleClick);
 	connect(serverAddress_, &QLineEdit::returnPressed, this, &MainWindow::animateClick);
 	connect(serverPort_, &QLineEdit::returnPressed, this, &MainWindow::animateClick);
@@ -79,8 +87,16 @@ void MainWindow::slotViewHistory(const QString& code) {
     contextLayout_->setCurrentIndex(1);
 }
 
-void MainWindow::slotViewHistoryFinish() {
+void MainWindow::slotToHistory() {
+	contextLayout_->setCurrentIndex(1);
+}
+
+void MainWindow::slotViewFinish() {
     contextLayout_->setCurrentIndex(0);
+}
+
+void MainWindow::slotViewCandle() {
+	contextLayout_->setCurrentIndex(2);
 }
 
 void MainWindow::handleClick()
@@ -98,6 +114,9 @@ void MainWindow::handleClick()
 		break;
 	case 1:
 		stockHistory_->fetchData(add, port);
+		break;
+	case 2:
+		stockCandle_->fetchData(add, port);
 		break;
 	default:
 		break;
