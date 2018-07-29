@@ -29,14 +29,17 @@ Candlestick::~Candlestick()
 void Candlestick::fetchData(string add, string port) {
 	QCandlestickSeries *candleSeries = new QCandlestickSeries();
 	QStringList categories;
+	int n = 239;
+	string cmd = "k|" + to_string(n);
 
 	io_service ios;
 	ip::tcp::socket sock(ios);
 	ip::tcp::endpoint ep(ip::address::from_string(add), 11230);
 	sock.connect(ep);
-	sock.write_some(buffer("k|"));
+	sock.write_some(buffer(cmd));
 
-	for (int i = 0; i < 50; i++) {
+	string dt;
+	for (int i = 0; i < n; i++) {
 		ip::tcp::iostream tcp_stream(add, port);
 		string buf;
 		getline(tcp_stream, buf);
@@ -66,6 +69,10 @@ void Candlestick::fetchData(string add, string port) {
 
 		candleSeries->append(candlestickSet);
 		categories << QDateTime::fromMSecsSinceEpoch(candlestickSet->timestamp()).toString("h:m:s");
+
+		if (i == 0) {
+			dt = datetimeVec[1];
+		}
 	}
 
 	candleSeries->setIncreasingColor(QColor(Qt::red));
@@ -73,7 +80,7 @@ void Candlestick::fetchData(string add, string port) {
 
 	QChart *chart = new QChart();
 	chart->addSeries(candleSeries);
-	chart->setTitle(u8"ÈÕK");
+	chart->setTitle(u8"ÈÕKÏß " + QString::fromStdString(dt));
 	chart->setAnimationOptions(QChart::SeriesAnimations);
 	chart->legend()->hide();
 	chart->setTheme(QChart::ChartThemeDark);
@@ -91,8 +98,8 @@ void Candlestick::fetchData(string add, string port) {
 	//chart->addAxis(axisX, Qt::AlignBottom);
 
 	QValueAxis *axisY = qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).at(0));
-	axisY->setMax(axisY->max() * 1.0001);
-	axisY->setMin(axisY->min() * 0.9999);
+	axisY->setMax(axisY->max() * 1.001);
+	axisY->setMin(axisY->min() * 0.999);
 	//axisY->setTickCount(5);
 
 	QChartView *chartView = new QChartView(chart);

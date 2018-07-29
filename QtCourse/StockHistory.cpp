@@ -27,15 +27,17 @@ void StockHistory::fetchData(string add, string port) {
 	priceSeries = new QLineSeries();
 	avgPrice = new QLineSeries();
 	auto* dealSet = new QBarSet("成交量");
+	int n = 500;
+	string cmd = "h|" + to_string(n);
 
 	io_service ios;
 	ip::tcp::socket sock(ios);
 	ip::tcp::endpoint ep(ip::address::from_string(add), 11230);
 	sock.connect(ep);
-	sock.write_some(buffer("h|"));
+	sock.write_some(buffer(cmd));
 
 	int preDeal = 0; // 记录前一次的总成交量
-	for (int i = 0; i < 200; i++) {
+	for (int i = 0; i < n; i++) {
 		ip::tcp::iostream tcp_stream(add, port);
 		string buf;
 		getline(tcp_stream, buf);

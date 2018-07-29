@@ -51,6 +51,7 @@ void StockBrowser::fetchData(string serverAdd, string serverPort) {
 		item->setTextAlignment(Qt::AlignCenter);
 		setItem(row, 0, item);
 
+		tuple[2].pop_back();
 		item = new QTableWidgetItem(QString::fromStdString(tuple[2]));
 		item->setForeground(QBrush(QColor(Qt::yellow)));
 		item->setTextAlignment(Qt::AlignCenter);
@@ -66,11 +67,13 @@ void StockBrowser::fetchData(string serverAdd, string serverPort) {
 		item->setTextAlignment(Qt::AlignCenter);
 		setItem(row, 3, item);
 
+		tuple[20].pop_back();
 		item = new QTableWidgetItem(QString::fromStdString(tuple[20]));
 		item->setForeground(QBrush(QColor(Qt::green)));
 		item->setTextAlignment(Qt::AlignCenter);
 		setItem(row, 4, item);
 
+		tuple[21].pop_back();
 		item = new QTableWidgetItem(QString::fromStdString(tuple[21]));
 		item->setForeground(QBrush(QColor(Qt::cyan)));
 		item->setTextAlignment(Qt::AlignCenter);
